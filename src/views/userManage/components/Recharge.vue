@@ -54,6 +54,16 @@
         small
         @pagination-change="handlePageChange"
       />
+
+      <ItemChargeList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+      />
     </div>
     <div slot="footer">
       <el-button type="primary" size="small" @click="save">确定</el-button>
@@ -72,8 +82,12 @@ import {
 import formatter from '@/utils/format'
 import { getItem } from '@/utils/auth'
 import FileSaver from 'file-saver'
+import ItemChargeList from './components/ItemChargeList'
 export default {
   name: 'Recharge',
+  components: {
+    ItemChargeList
+  },
   props: {
     visible: {
       type: Boolean,
@@ -180,7 +194,7 @@ export default {
     handlePageChange({ type, val }) {
       this.pagination[type] = val
       type === 'pageSize' && (this.pagination.currentPage = 1)
-      this.handleDetail()
+      this.handleDetail(this.uuid)
     },
     handleDetail(uuid) {
       const params = {

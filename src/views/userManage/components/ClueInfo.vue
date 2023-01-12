@@ -76,6 +76,16 @@
           small
           @pagination-change="handlePageChange"
         />
+
+        <ItemClueList
+          v-else
+          :data="tableData"
+          :pagination="pagination"
+          :total="totalCount"
+          layout="total, sizes, prev, pager, next, jumper"
+          small
+          @pagination-change="handlePageChange"
+        />
       </div>
     </div>
   </d-dialog>
@@ -87,8 +97,12 @@ import { getCuleInfoList, exportList } from '@/api/customer'
 import { copyObj } from '@/utils'
 import formatter from '@/utils/format'
 import FileSaver from 'file-saver'
+import ItemClueList from './components/ItemClueList'
 export default {
   name: 'ClueInfo',
+  components: {
+    ItemClueList
+  },
   props: {
     visible: {
       type: Boolean,
@@ -233,7 +247,7 @@ export default {
     },
     searchTable() {
       this.lockedModel = copyObj(this.model)
-      this.handleDetail()
+      this.handleDetail(this.uuid)
     },
     reset() {
       this.model = {}
@@ -241,7 +255,7 @@ export default {
     handlePageChange({ type, val }) {
       this.pagination[type] = val
       type === 'pageSize' && (this.pagination.currentPage = 1)
-      this.handleDetail()
+      this.handleDetail(this.uuid)
     },
     handleDetail(uuid) {
       const {
@@ -340,7 +354,8 @@ export default {
         start_create_time: this.start_create_time,
         end_create_time: this.end_create_time,
         start_update_time: this.start_update_time,
-        end_update_time: this.end_update_time
+        end_update_time: this.end_update_time,
+        user_id: this.uuid
       }
       exportList(0, params)
         .then(res => {

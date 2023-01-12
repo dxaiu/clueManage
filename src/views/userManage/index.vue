@@ -115,6 +115,21 @@
           </template>
         </el-table-column>
       </d-table>
+
+      <ItemList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+        @handlePlaySwitch="handlePlaySwitch"
+        @handleYellowSwitch="handleYellowSwitch"
+        @handleRecharge="handleRecharge"
+        @handleInfo="handleInfo"
+        @handleEdit="handleEdit"
+      />
     </div>
 
     <AddUser
@@ -147,6 +162,7 @@ import AddUser from './components/AddUser'
 import EditUser from './components/EditUser'
 import Recharge from './components/Recharge'
 import ClueInfo from './components/ClueInfo'
+import ItemList from './components/ItemList'
 import FileSaver from 'file-saver'
 export default {
   name: 'UserManage',
@@ -154,7 +170,8 @@ export default {
     AddUser,
     EditUser,
     Recharge,
-    ClueInfo
+    ClueInfo,
+    ItemList
   },
   data() {
     return {
@@ -397,9 +414,9 @@ export default {
       this.editVisible = true
       this.model = row
     },
-    handlePlaySwitch(row, val) {
+    handlePlaySwitch(row) {
       this.$confirm(
-        `是否确认${val == true ? '开启' : '关闭'}计划状态？`,
+        `是否确认${row.plan_status == true ? '开启' : '关闭'}计划状态？`,
         '提示',
         {
           confirmButtonText: '确定',
@@ -410,7 +427,7 @@ export default {
         .then(async () => {
           editUser(row.id, row).then(() => {
             this.$message({
-              message: `${val == true ? '开启成功' : '关闭成功'}`,
+              message: `${row.plan_status == true ? '开启成功' : '关闭成功'}`,
               type: 'success'
             })
             this.handleTableData()
@@ -418,23 +435,27 @@ export default {
         })
         .catch(() => {
           // 取消时恢复原始开关状态
-          if (val == false) {
+          if (row.plan_status == false) {
             row.plan_status = true
           } else {
             row.plan_status = false
           }
         })
     },
-    handleYellowSwitch(row, val) {
-      this.$confirm(`是否确认${val == true ? '开启' : '关闭'}变黄？`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
+    handleYellowSwitch(row) {
+      this.$confirm(
+        `是否确认${row.is_yellow == true ? '开启' : '关闭'}变黄？`,
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
         .then(async () => {
           editUser(row.id, row).then(() => {
             this.$message({
-              message: `${val == true ? '开启成功' : '关闭成功'}`,
+              message: `${row.is_yellow == true ? '开启成功' : '关闭成功'}`,
               type: 'success'
             })
             this.handleTableData()
@@ -442,7 +463,7 @@ export default {
         })
         .catch(() => {
           // 取消时恢复原始开关状态
-          if (val == false) {
+          if (row.is_yellow == false) {
             row.is_yellow = true
           } else {
             row.is_yellow = false

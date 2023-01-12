@@ -66,6 +66,16 @@
         small
         @pagination-change="handlePageChange"
       />
+
+      <ItemAssignList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+      />
     </div>
   </div>
 </template>
@@ -75,8 +85,12 @@ import { mapGetters } from 'vuex'
 import FileSaver from 'file-saver'
 import { copyObj } from '@/utils'
 import formatter from '@/utils/format'
+import ItemAssignList from './components/ItemAssignList'
 export default {
   name: 'assignedLead',
+  components: {
+    ItemAssignList
+  },
   data() {
     return {
       barData: [],

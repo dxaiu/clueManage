@@ -74,6 +74,18 @@
         @pagination-change="handlePageChange"
         @selection-change="handleSelection"
       />
+
+      <ItemUnassignList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+        @handleAssignCustomer="handleAssignCustomer"
+        @handleSelection="handleSelection"
+      />
     </div>
 
     <Assignment
@@ -97,12 +109,14 @@ import formatter from '@/utils/format'
 import Assignment from './components/Assignment'
 import BatchAssignment from './components/BatchAssignment'
 import Import from './components/Import'
+import ItemUnassignList from './components/ItemUnassignList'
 export default {
   name: 'unassignedLead',
   components: {
     Assignment,
     BatchAssignment,
-    Import
+    Import,
+    ItemUnassignList
   },
   data() {
     return {

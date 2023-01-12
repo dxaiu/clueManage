@@ -54,6 +54,7 @@
         </div>
       </div>
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -64,6 +65,17 @@
         layout="total, sizes, prev, pager, next, jumper"
         small
         @pagination-change="handlePageChange"
+      />
+
+      <ItemMyClueList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+        @handleFollow="handleFollow"
       />
     </div>
 
@@ -81,10 +93,12 @@ import formatter from '@/utils/format'
 import CustomerFollow from './components/CustomerFollow'
 import { getItem } from '@/utils/auth'
 import FileSaver from 'file-saver'
+import ItemMyClueList from './components/ItemMyClueList'
 export default {
   name: 'myCluesList',
   components: {
-    CustomerFollow
+    CustomerFollow,
+    ItemMyClueList
   },
   data() {
     return {

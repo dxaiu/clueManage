@@ -44,6 +44,16 @@
         small
         @pagination-change="handlePageChange"
       />
+
+      <ItemFollowList
+        v-else
+        :data="tableData"
+        :pagination="pagination"
+        :total="totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        small
+        @pagination-change="handlePageChange"
+      />
     </div>
     <div slot="footer">
       <el-button type="primary" size="small" @click="save">确定</el-button>
@@ -56,8 +66,12 @@
 import { getFollowList, saveFollowUp, exportFollowList } from '@/api/myClues'
 import formatter from '@/utils/format'
 import FileSaver from 'file-saver'
+import ItemFollowList from './components/ItemFollowList'
 export default {
   name: 'CustomerFollow',
+  components: {
+    ItemFollowList
+  },
   props: {
     visible: {
       type: Boolean,
@@ -196,7 +210,7 @@ export default {
     handlePageChange({ type, val }) {
       this.pagination[type] = val
       type === 'pageSize' && (this.pagination.page_num = 1)
-      this.handleDetail()
+      this.handleDetail(this.uuid)
     },
     handleDetail(uuid) {
       const params = {
