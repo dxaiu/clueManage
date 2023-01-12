@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="form-wrapper">
+    <div class="form-wrapper" v-show="isExpand">
       <d-form
         :layout-span="layoutSpan"
         :breakpoint="breakpoint"
@@ -10,8 +10,10 @@
         class="iform"
       />
       <div class="btn-wrapper">
-        <el-button type="primary" @click="searchTable">查询</el-button>
-        <el-button @click="reset">重置</el-button>
+        <el-button type="primary" size="small" @click="searchTable"
+          >查询</el-button
+        >
+        <el-button size="small" @click="reset">重置</el-button>
       </div>
     </div>
     <div class="table-dash">
@@ -21,14 +23,45 @@
           <span>当前搜索结果{{ totalCount || 0 }}条</span>
         </div>
         <div class="btn-group-block">
-          <el-button type="primary" @click="handleBatchAssignCustomer">
-            分配客户
+          <div class="item-search">
+            <el-input
+              v-model="searchText"
+              size="small"
+              placeholder="搜索"
+              @input="handleSearch"
+            ></el-input>
+          </div>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-tickets"
+            @click="handleItem"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-s-promotion"
+            @click="handleBatchAssignCustomer"
+          ></el-button>
+          <el-button
+            type="danger"
+            size="small"
+            icon="el-icon-delete"
+            @click="handleDelete"
+          ></el-button>
+          <el-button size="small" icon="el-icon-download" @click="handleImport">
           </el-button>
-          <el-button type="danger" @click="handleDelete"> 删除 </el-button>
-          <el-button @click="handleImport"> 导入 </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-search"
+            @click="handleExpand"
+          >
+          </el-button>
         </div>
       </div>
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -76,6 +109,7 @@ export default {
       barData: [],
       layoutSpan: 24,
       breakpoint: [
+        [600, 1],
         [768, 2],
         [992, 3],
         [1200, 3],
@@ -174,6 +208,7 @@ export default {
         { label: '省份', prop: 'province' },
         { label: '城市', prop: 'city' },
         { label: '科室', prop: 'department' },
+        { label: '详情', prop: 'detail' },
         { label: '广告主名称', prop: 'advertiser_name' },
         { label: '广告计划名称', prop: 'advertiser_plan' },
         { label: '创建时间', prop: 'created_time', formatter },
@@ -192,15 +227,22 @@ export default {
         }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
       assignVisible: false,
       assignBatchVisible: false,
       importVisible: false,
       model: {},
       selectedList: [],
-      list: []
+      list: [],
+      start_create_time: '',
+      end_create_time: '',
+      start_update_time: '',
+      end_update_time: '',
+      searchText: '',
+      isTable: true,
+      isExpand: false
     }
   },
   mounted() {
@@ -208,7 +250,7 @@ export default {
   },
   methods: {
     searchTable() {
-      this.pagination.page_num = 1
+      this.pagination.currentPage = 1
       this.lockedModel = copyObj(this.form)
       this.handleTableData()
     },
@@ -223,12 +265,31 @@ export default {
         city,
         department,
         advertiser_name,
-        advertiser_plan,
-        createtime,
-        updatetime
+        advertiser_plan
       } = this.lockedModel
-      const [start_create_time, end_create_time] = createtime || []
-      const [start_update_time, end_update_time] = updatetime || []
+
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
+      if (this.form.updatetime) {
+        this.start_update_time = parseInt(
+          new Date(this.form.updatetime[0]).getTime() / 1000
+        )
+        this.end_update_time = parseInt(
+          new Date(this.form.updatetime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_update_time = ''
+        this.end_update_time = ''
+      }
       const params = {
         id,
         remark,
@@ -240,11 +301,14 @@ export default {
         department,
         advertiser_name,
         advertiser_plan,
-        start_create_time,
-        end_create_time,
-        start_update_time,
-        end_update_time,
-        ...this.pagination
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        start_update_time: this.start_update_time,
+        end_update_time: this.end_update_time,
+        user_id: 0,
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize,
+        key: this.searchText
       }
       this.loading = true
       getUnassignLeadList(params)
@@ -266,12 +330,12 @@ export default {
     },
     refreshTable() {
       this.reset()
-      this.pagination.page_num = 1
+      // this.pagination.currentPage = 1
       this.handleTableData()
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleTableData()
     },
     handleSelection(val) {
@@ -308,6 +372,16 @@ export default {
     },
     handleImport() {
       this.importVisible = true
+    },
+    handleSearch(val) {
+      this.searchText = val
+      this.handleTableData()
+    },
+    handleItem() {
+      this.isTable = !this.isTable
+    },
+    handleExpand() {
+      this.isExpand = !this.isExpand
     }
   }
 }

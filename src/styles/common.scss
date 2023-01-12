@@ -295,6 +295,7 @@
     background: #f0f2f5;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     margin-top: 15px;
     margin-bottom: 15px;
     padding: 24px 24px 0;
@@ -341,19 +342,32 @@
     }
   }
   .table-dash {
+    margin-top: 15px;
     padding: 0 16px 16px 16px;
     background: #fff;
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.10);
     .search-header {
-      height: 64px;
-      line-height: 64px;
-      padding: 0 24px;
+      min-height: 64px;
+      // line-height: 64px;
+      // padding: 0 24px;
       display: flex;
       justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
       .search-result-count {
         color: #2082ee;
         font-size: 16px;
         font-family: PingFangSC-Medium;
+      }
+      .btn-group-block {
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap;
+        align-items: center;
+        .item-search {
+          width: 40%;
+          margin-right: 10px;
+        }
       }
     }
     .table-wrapper {
@@ -561,10 +575,29 @@
 }
 .el-pagination {
   margin: 12px 0 0 0;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .el-button {
-  height: 32px;
-  line-height: 5px;
-  border-radius: 0!important;
+  padding: 9px 9px;
 }
+
+@media screen and (max-width:600px) {
+  .el-dialog{
+    width: 90% !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+    .el-message {
+      min-width: 300px !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .el-message-box{
+      width: 90% !important;
+    }
+  }

@@ -16,10 +16,14 @@
         :loading="loading"
       />
       <div class="import-btn-wrapper" v-if="show">
-        <el-button size="small" @click="outerClose"> 取消 </el-button>
-        <el-button type="primary" @click="confirm" :disabled="loading"
+        <el-button
+          type="primary"
+          size="small"
+          @click="confirm"
+          :disabled="loading"
           >确定</el-button
         >
+        <el-button size="small" @click="outerClose"> 取消 </el-button>
       </div>
     </d-dialog>
   </div>
@@ -51,15 +55,15 @@ export default {
       this.$emit('update:visible', false)
     },
     onChange(file) {
-      const arr = file.raw.name.split('.')
-      const suffix = arr[arr.length - 1]
-      const isExcel = suffix === 'xlsx'
-      if (!isExcel) {
-        this.$message.error('文件错误，请上传xlsx格式文件')
-        this.fileList = []
-      } else {
-        this.fileList[0] = file
-      }
+      // const arr = file.raw.name.split('.')
+      // const suffix = arr[arr.length - 1]
+      // const isExcel = suffix === 'xlsx'
+      // if (!isExcel) {
+      //   this.$message.error('文件错误，请上传xlsx格式文件')
+      //   this.fileList = []
+      // } else {
+      this.fileList[0] = file
+      // }
     },
     onRemove() {
       this.fileList = []

@@ -16,10 +16,23 @@
       label-width="120px"
     />
     <div class="btn-group-block">
-      <el-button type="primary" plain @click="handleExport"> 导出 </el-button>
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-tickets"
+        @click="handleItem"
+      ></el-button>
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-top-right"
+        @click="handleExport"
+      >
+      </el-button>
     </div>
     <div class="box-item">
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -33,8 +46,8 @@
       />
     </div>
     <div slot="footer">
-      <el-button type="primary" @click="save">确定</el-button>
-      <el-button @click="close">取消</el-button>
+      <el-button type="primary" size="small" @click="save">确定</el-button>
+      <el-button size="small" @click="close">取消</el-button>
     </div>
   </d-dialog>
 </template>
@@ -42,6 +55,7 @@
 <script>
 import { getFollowList, saveFollowUp, exportFollowList } from '@/api/myClues'
 import formatter from '@/utils/format'
+import FileSaver from 'file-saver'
 export default {
   name: 'CustomerFollow',
   props: {
@@ -144,7 +158,8 @@ export default {
         page_num: 1,
         page_size: 10
       },
-      uuid: ''
+      uuid: '',
+      isTable: true
     }
   },
   methods: {
@@ -200,10 +215,15 @@ export default {
     },
     handleExport() {
       exportFollowList(this.uuid)
-        .then(() => {})
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
         .catch(err => {
           console.log(err)
         })
+    },
+    handleItem() {
+      this.isTable = !this.isTable
     }
   }
 }

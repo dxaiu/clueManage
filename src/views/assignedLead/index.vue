@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="form-wrapper">
+    <div class="form-wrapper" v-show="isExpand">
       <d-form
         :layout-span="layoutSpan"
         :breakpoint="breakpoint"
@@ -10,8 +10,10 @@
         class="iform"
       />
       <div class="btn-wrapper">
-        <el-button type="primary" @click="searchTable">查询</el-button>
-        <el-button @click="reset">重置</el-button>
+        <el-button type="primary" size="small" @click="searchTable"
+          >查询</el-button
+        >
+        <el-button size="small" @click="reset">重置</el-button>
       </div>
     </div>
     <div class="table-dash">
@@ -21,12 +23,38 @@
           <span>当前搜索结果{{ totalCount || 0 }}条</span>
         </div>
         <div class="btn-group-block">
-          <el-button type="primary" plain @click="handleExport">
-            导出
+          <div class="item-search">
+            <el-input
+              v-model="searchText"
+              size="small"
+              placeholder="搜索"
+              @input="handleSearch"
+            ></el-input>
+          </div>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-tickets"
+            @click="handleItem"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-top-right"
+            @click="handleExport"
+          >
+          </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-search"
+            @click="handleExpand"
+          >
           </el-button>
         </div>
       </div>
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -44,7 +72,7 @@
 <script>
 import { getAssignLeadList, exportAssign } from '@/api/assignedLead'
 import { mapGetters } from 'vuex'
-// import FileSaver from 'file-saver'
+import FileSaver from 'file-saver'
 import { copyObj } from '@/utils'
 import formatter from '@/utils/format'
 export default {
@@ -54,6 +82,7 @@ export default {
       barData: [],
       layoutSpan: 24,
       breakpoint: [
+        [600, 1],
         [768, 2],
         [992, 3],
         [1200, 3],
@@ -108,10 +137,15 @@ export default {
         { label: '创建时间', prop: 'created_time', formatter }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
-      uuid: ''
+      uuid: '',
+      start_create_time: '',
+      end_create_time: '',
+      searchText: '',
+      isTable: true,
+      isExpand: false
     }
   },
   computed: {
@@ -122,21 +156,33 @@ export default {
   },
   methods: {
     searchTable() {
-      this.pagination.page_num = 1
+      this.pagination.currentPage = 1
       this.lockedModel = copyObj(this.form)
       this.handleTableData()
     },
     handleTableData() {
-      const { phone, province, city, department, createtime } = this.lockedModel
-      const [start_create_time, end_create_time] = createtime || []
+      const { phone, province, city, department } = this.lockedModel
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
       const params = {
         phone,
         province,
         city,
         department,
-        start_create_time,
-        end_create_time,
-        ...this.pagination
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize,
+        key: this.searchText
       }
       this.loading = true
       getAssignLeadList(params)
@@ -154,30 +200,52 @@ export default {
     },
     refreshTable() {
       this.reset()
-      this.pagination.page_num = 1
+      this.pagination.currentPage = 1
       this.handleTableData()
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleTableData()
     },
     handleExport() {
-      const [start_create_time, end_create_time] = this.form.createtime || []
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
       const params = {
         phone: this.form.phone,
         province: this.form.province,
         city: this.form.city,
         department: this.form.department,
-        start_create_time,
-        end_create_time
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time
       }
 
       exportAssign(0, params)
-        .then(() => {})
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
         .catch(err => {
           console.log(err)
         })
+    },
+    handleSearch(val) {
+      this.searchText = val
+      this.handleTableData()
+    },
+    handleItem() {
+      this.isTable = !this.isTable
+    },
+    handleExpand() {
+      this.isExpand = !this.isExpand
     }
   }
 }

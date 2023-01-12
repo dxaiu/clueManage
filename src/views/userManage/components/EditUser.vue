@@ -2,7 +2,7 @@
   <d-dialog
     title="编辑"
     :visible="visible"
-    width="700px"
+    width="600px"
     vertical-center
     :close-on-click-modal="false"
     @close="close"
@@ -26,8 +26,8 @@
       </template>
     </d-form>
     <div slot="footer">
-      <el-button type="primary" @click="save">确定</el-button>
-      <el-button @click="close">取消</el-button>
+      <el-button type="primary" size="small" @click="save">确定</el-button>
+      <el-button size="small" @click="close">取消</el-button>
     </div>
   </d-dialog>
 </template>
@@ -64,10 +64,7 @@ export default {
           value: 'user_type',
           label: '所属组别',
           clearable: true,
-          options: [
-            { label: '管理员', value: 'admin' },
-            { label: '客户', value: 'customer' }
-          ]
+          options: [{ label: '客户', value: 'customer' }]
         },
         {
           type: 'text',
@@ -170,7 +167,9 @@ export default {
         }
       ],
       currentForm: {
-        id: ''
+        id: '',
+        plan_status: '',
+        is_yellow: ''
       },
       rules: {
         user_type: [
@@ -239,7 +238,9 @@ export default {
           remark: this.currentForm.remark,
           status: this.currentForm.status === '启用' ? true : false,
           enable_wechat:
-            this.currentForm.enable_wechat === '启用' ? true : false
+            this.currentForm.enable_wechat === '启用' ? true : false,
+          plan_status: this.currentForm.plan_status,
+          is_yellow: this.currentForm.is_yellow
         }
 
         editUser(this.uuid, params).then(() => {
@@ -269,7 +270,9 @@ export default {
             department: res.data.department,
             remark: res.data.remark,
             status: res.data.status === true ? '启用' : '禁用',
-            enable_wechat: res.data.enable_wechat === true ? '启用' : '禁用'
+            enable_wechat: res.data.enable_wechat === true ? '启用' : '禁用',
+            plan_status: res.data.plan_status,
+            is_yellow: res.data.is_yellow
           }
         })
         .catch(() => {

@@ -2,7 +2,7 @@
   <d-dialog
     title="添加"
     :visible="visible"
-    width="700px"
+    width="600px"
     vertical-center
     :close-on-click-modal="false"
     @close="close"
@@ -16,8 +16,8 @@
       label-width="120px"
     />
     <div slot="footer">
-      <el-button type="primary" @click="save">确定</el-button>
-      <el-button @click="close">取消</el-button>
+      <el-button type="primary" size="small" @click="save">确定</el-button>
+      <el-button size="small" @click="close">取消</el-button>
     </div>
   </d-dialog>
 </template>
@@ -54,10 +54,7 @@ export default {
           value: 'user_type',
           label: '所属组别',
           clearable: true,
-          options: [
-            { label: '管理员', value: 'admin' },
-            { label: '客户', value: 'customer' }
-          ]
+          options: [{ label: '客户', value: 'customer' }]
         },
         {
           type: 'text',
@@ -157,7 +154,7 @@ export default {
         }
       ],
       currentForm: {
-        user_type: 'admin',
+        user_type: 'customer',
         status: '启用',
         enable_wechat: '启用'
       },
@@ -207,7 +204,7 @@ export default {
     },
     opened() {
       this.currentForm = {
-        user_type: 'admin',
+        user_type: 'customer',
         status: '启用',
         enable_wechat: '启用'
       }

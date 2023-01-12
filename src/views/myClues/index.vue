@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="form-wrapper">
+    <div class="form-wrapper" v-show="isExpand">
       <d-form
         :layout-span="layoutSpan"
         :breakpoint="breakpoint"
@@ -10,8 +10,10 @@
         class="iform"
       />
       <div class="btn-wrapper">
-        <el-button type="primary" @click="searchTable">查询</el-button>
-        <el-button @click="reset">重置</el-button>
+        <el-button type="primary" size="small" @click="searchTable"
+          >查询</el-button
+        >
+        <el-button size="small" @click="reset">重置</el-button>
       </div>
     </div>
     <div class="table-dash">
@@ -19,6 +21,36 @@
         <div class="search-result-count">
           <i class="el-icon-info" />
           <span>当前搜索结果{{ totalCount || 0 }}条</span>
+        </div>
+        <div class="btn-group-block">
+          <div class="item-search">
+            <el-input
+              v-model="searchText"
+              size="small"
+              placeholder="搜索"
+              @input="handleSearch"
+            ></el-input>
+          </div>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-tickets"
+            @click="handleItem"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-top-right"
+            @click="handleExport"
+          >
+          </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-search"
+            @click="handleExpand"
+          >
+          </el-button>
         </div>
       </div>
       <d-table
@@ -43,11 +75,12 @@
   </div>
 </template>
 <script>
-import { getClueList } from '@/api/myClues'
+import { getClueList, exportClueList } from '@/api/myClues'
 import { copyObj } from '@/utils'
 import formatter from '@/utils/format'
 import CustomerFollow from './components/CustomerFollow'
 import { getItem } from '@/utils/auth'
+import FileSaver from 'file-saver'
 export default {
   name: 'myCluesList',
   components: {
@@ -58,6 +91,7 @@ export default {
       barData: [],
       layoutSpan: 24,
       breakpoint: [
+        [600, 1],
         [768, 2],
         [992, 3],
         [1200, 3],
@@ -148,11 +182,18 @@ export default {
         }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
       model: {},
-      followVisible: false
+      followVisible: false,
+      start_create_time: '',
+      end_create_time: '',
+      start_update_time: '',
+      end_update_time: '',
+      searchText: '',
+      isTable: true,
+      isExpand: false
     }
   },
   mounted() {
@@ -160,23 +201,36 @@ export default {
   },
   methods: {
     searchTable() {
-      this.pagination.page_num = 1
+      this.pagination.currentPage = 1
       this.lockedModel = copyObj(this.form)
       this.handleTableData()
     },
     handleTableData() {
-      const {
-        name,
-        phone,
-        source_type,
-        province,
-        city,
-        department,
-        createtime,
-        updatetime
-      } = this.lockedModel
-      const [start_create_time, end_create_time] = createtime || []
-      const [start_update_time, end_update_time] = updatetime || []
+      const { name, phone, source_type, province, city, department } =
+        this.lockedModel
+
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
+      if (this.form.updatetime) {
+        this.start_update_time = parseInt(
+          new Date(this.form.updatetime[0]).getTime() / 1000
+        )
+        this.end_update_time = parseInt(
+          new Date(this.form.updatetime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_update_time = ''
+        this.end_update_time = ''
+      }
       const userId = parseInt(getItem('userid'))
       const params = {
         name,
@@ -185,12 +239,14 @@ export default {
         province,
         city,
         department,
-        start_create_time,
-        end_create_time,
-        start_update_time,
-        end_update_time,
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        start_update_time: this.start_update_time,
+        end_update_time: this.end_update_time,
         user_id: userId,
-        ...this.pagination
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize,
+        key: this.searchText
       }
       this.loading = true
       getClueList(params)
@@ -203,22 +259,78 @@ export default {
           this.loading = false
         })
     },
+    handleExport() {
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
+      if (this.form.updatetime) {
+        this.start_update_time = parseInt(
+          new Date(this.form.updatetime[0]).getTime() / 1000
+        )
+        this.end_update_time = parseInt(
+          new Date(this.form.updatetime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_update_time = ''
+        this.end_update_time = ''
+      }
+
+      const userId = parseInt(getItem('userid'))
+      const params = {
+        name: this.form.name,
+        phone: this.form.phone,
+        source_type: this.form.source_type,
+        province: this.form.province,
+        city: this.form.city,
+        department: this.form.department,
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        start_update_time: this.start_update_time,
+        end_update_time: this.end_update_time,
+        user_id: userId
+      }
+      exportClueList(0, params)
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     reset() {
       this.form = {}
     },
     refreshTable() {
       this.reset()
-      this.pagination.page_num = 1
+      // this.pagination.currentPage = 1
       this.handleTableData()
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleTableData()
     },
     handleFollow(row) {
       this.followVisible = true
       this.model = row
+    },
+    handleSearch(val) {
+      this.searchText = val
+      this.handleTableData()
+    },
+    handleItem() {
+      this.isTable = !this.isTable
+    },
+    handleExpand() {
+      this.isExpand = !this.isExpand
     }
   }
 }

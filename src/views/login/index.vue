@@ -66,7 +66,8 @@ export default {
     return {
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        code: ''
       },
       loginRules: {
         username: [
@@ -87,6 +88,19 @@ export default {
       },
       immediate: true
     }
+  },
+  created() {
+    var url = window.location.href //获取当前url
+    var dz_url = url.split('#')[0] || '' //获取#/之前的字符串
+    var cs = dz_url.split('?')[1] || '' //获取?之后的参数字符串
+    var cs_arr = cs.split('&') || [] //参数字符串分割为数组
+    var cs1 = {}
+    for (var i = 0; i < cs_arr.length; i++) {
+      //遍历数组，拿到json对象
+      cs1[cs_arr[i].split('=')[0]] = cs_arr[i].split('=')[1]
+    }
+
+    this.loginForm.code = cs1.code || ''
   },
   methods: {
     handleLogin() {

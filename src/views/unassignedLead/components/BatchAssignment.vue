@@ -16,8 +16,10 @@
       labelPosition="top"
     />
     <div slot="footer">
-      <el-button type="primary" @click="handleSure">确定</el-button>
-      <el-button @click="close">取消</el-button>
+      <el-button type="primary" size="small" @click="handleSure"
+        >确定</el-button
+      >
+      <el-button size="small" @click="close">取消</el-button>
     </div>
   </d-dialog>
 </template>
@@ -49,14 +51,20 @@ export default {
           value: 'user_id',
           label: '分配客户',
           clearable: true,
-          options: []
+          options: [],
+          filterable: true,
+          remote: true,
+          remoteMethod: this.remoteMethod
         },
         {
+          type: 'textarea',
           label: '备注',
-          type: 'text',
           value: 'remark',
-          clearable: true,
-          placeholder: '请输入备注'
+          placeholder: '',
+          maxlength: 50,
+          showWordLimit: true,
+          autosize: { minRows: 2, maxRows: 4 },
+          clearable: true
         }
       ],
       currentForm: {},
@@ -65,7 +73,7 @@ export default {
           { required: true, message: '请选择分配客户', trigger: 'blur' }
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' },
+          { required: false, message: '请输入备注', trigger: 'blur' },
           { max: 50, message: '备注不超过50个字符', trigger: 'blur' }
         ]
       },
@@ -76,13 +84,25 @@ export default {
       uuid: ''
     }
   },
+  mounted() {
+    // 去除下拉框的readonly属性
+    Array.from(document.getElementsByClassName('el-select')).forEach(item => {
+      item.children[0].children[0].removeAttribute('readOnly')
+      item.children[0].children[0].onblur = function () {
+        let _this = this
+        setTimeout(() => {
+          _this.removeAttribute('readOnly')
+        }, 200)
+      }
+    })
+  },
   methods: {
     refreshTable() {
       this.$emit('refreshTable')
     },
     opened() {
       this.uuid = this.form.id
-      this.getUserList()
+      // this.getUserList()
     },
     close() {
       this.$refs.form.resetFields()
@@ -107,6 +127,27 @@ export default {
           this.refreshTable()
         })
       })
+    },
+    remoteMethod(val) {
+      if (!val) return
+      this.loading = true
+      this.items[0].options = []
+      const params = {
+        ...this.pagination,
+        user_name: val
+      }
+      getUserList(params)
+        .then(res => {
+          if (res.data.users && res.data.users.length !== 0) {
+            this.items[0].options = res.data.users.map(bean => ({
+              label: bean.nick,
+              value: bean.id
+            }))
+          } else {
+            this.items[0].options = []
+          }
+        })
+        .catch(err => console.log(err))
     },
     getUserList() {
       const params = {

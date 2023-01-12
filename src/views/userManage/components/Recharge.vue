@@ -2,7 +2,7 @@
   <d-dialog
     title="表单数充值"
     :visible="visible"
-    width="700px"
+    width="600px"
     vertical-center
     :close-on-click-modal="false"
     @close="close"
@@ -26,10 +26,23 @@
       </template>
     </d-form>
     <div class="btn-group-block">
-      <el-button type="primary" plain @click="handleExport"> 导出 </el-button>
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-tickets"
+        @click="handleItem"
+      ></el-button>
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-top-right"
+        @click="handleExport"
+      >
+      </el-button>
     </div>
     <div class="box-item">
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -43,8 +56,8 @@
       />
     </div>
     <div slot="footer">
-      <el-button type="primary" @click="save">确定</el-button>
-      <el-button @click="close">取消</el-button>
+      <el-button type="primary" size="small" @click="save">确定</el-button>
+      <el-button size="small" @click="close">取消</el-button>
     </div>
   </d-dialog>
 </template>
@@ -58,6 +71,7 @@ import {
 } from '@/api/customer'
 import formatter from '@/utils/format'
 import { getItem } from '@/utils/auth'
+import FileSaver from 'file-saver'
 export default {
   name: 'Recharge',
   props: {
@@ -122,10 +136,11 @@ export default {
         { label: '操作人', prop: 'operation_user_name' }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
-      uuid: ''
+      uuid: '',
+      isTable: true
     }
   },
   methods: {
@@ -164,12 +179,13 @@ export default {
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleDetail()
     },
     handleDetail(uuid) {
       const params = {
-        ...this.pagination
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize
       }
       this.loading = true
       getFormChargeList(uuid, params)
@@ -184,10 +200,15 @@ export default {
     },
     handleExport() {
       exportRechargeList(this.uuid)
-        .then(() => {})
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
         .catch(err => {
           console.log(err)
         })
+    },
+    handleItem() {
+      this.isTable = !this.isTable
     }
   }
 }

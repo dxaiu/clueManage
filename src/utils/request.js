@@ -6,7 +6,7 @@ import { getToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: '/information-flow',
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000
+  timeout: 60000
 })
 
 service.interceptors.request.use(
@@ -42,7 +42,8 @@ service.interceptors.response.use(
     if (res.status === 404) {
       errorMessage = '访问接口不存在!'
     }
-    if (res.status === 401 || errorMessage === '登录已过期') {
+    if (res.status === 401) {
+      errorMessage === '登录已过期'
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })

@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="form-wrapper">
+    <div class="form-wrapper" v-show="isExpand">
       <d-form
         :layout-span="layoutSpan"
         :breakpoint="breakpoint"
@@ -10,8 +10,10 @@
         class="iform"
       />
       <div class="btn-wrapper">
-        <el-button type="primary" @click="searchTable">查询</el-button>
-        <el-button @click="reset">重置</el-button>
+        <el-button type="primary" size="small" @click="searchTable"
+          >查询</el-button
+        >
+        <el-button size="small" @click="reset">重置</el-button>
       </div>
     </div>
     <div class="table-dash">
@@ -27,13 +29,44 @@
           </span>
         </div>
         <div class="btn-group-block">
-          <el-button type="primary" @click="handleAdd"> 添加 </el-button>
-          <el-button type="primary" plain @click="handleExport">
-            导出
+          <div class="item-search">
+            <el-input
+              v-model="searchText"
+              size="small"
+              placeholder="搜索"
+              @input="handleSearch"
+            ></el-input>
+          </div>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-tickets"
+            @click="handleItem"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-plus"
+            @click="handleAdd"
+          ></el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-top-right"
+            @click="handleExport"
+          >
+          </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-search"
+            @click="handleExpand"
+          >
           </el-button>
         </div>
       </div>
       <d-table
+        v-if="isTable"
         ref="table"
         v-loading="loading"
         class="table-wrapper table-wrapper-scorll"
@@ -44,6 +77,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         small
         @pagination-change="handlePageChange"
+        @sort-change="sortChange"
       >
         <el-table-column label="状态" slot="status">
           <template #default="{ row }">
@@ -113,6 +147,7 @@ import AddUser from './components/AddUser'
 import EditUser from './components/EditUser'
 import Recharge from './components/Recharge'
 import ClueInfo from './components/ClueInfo'
+import FileSaver from 'file-saver'
 export default {
   name: 'UserManage',
   components: {
@@ -125,6 +160,7 @@ export default {
     return {
       layoutSpan: 24,
       breakpoint: [
+        [600, 1],
         [768, 2],
         [992, 3],
         [1200, 3],
@@ -201,16 +237,15 @@ export default {
         { label: '状态', slot: 'status' },
         { label: '计划状态', slot: 'plan_status' },
         { label: '变黄', slot: 'is_yellow' },
-        { label: '备注', prop: 'remark' },
-        { label: '总条数', prop: 'total_recharge_count' },
-        { label: '共消耗', prop: 'total_used_count' },
-        { label: '共剩余', prop: 'total_remaining_count' },
-        { label: '今日消耗', prop: 'today_used_count' },
+        { label: '备注', prop: 'remark', width: '320' },
+        { label: '总条数', prop: 'recharge_total', sortable: 'custom' },
+        { label: '共消耗', prop: 'consume_total', sortable: 'custom' },
+        { label: '共剩余', prop: 'surplus_total', sortable: 'custom' },
+        { label: '今日消耗', prop: 'consume_today', sortable: 'custom' },
         { label: '城市', prop: 'city' },
         {
           label: '操作',
-          width: '200',
-          fixed: 'right',
+          width: '260',
           buttons: [
             {
               type: 'text',
@@ -236,8 +271,8 @@ export default {
         }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
       assignVisible: false,
       addVisible: false,
@@ -248,7 +283,14 @@ export default {
       recharge_total: 0,
       consume_total: 0,
       surplus_total: 0,
-      consume_today: 0
+      consume_today: 0,
+      start_create_time: '',
+      end_create_time: '',
+      order_type: '',
+      order_by: '',
+      searchText: '',
+      isTable: true,
+      isExpand: false
     }
   },
   computed: {
@@ -259,21 +301,25 @@ export default {
   },
   methods: {
     searchTable() {
-      this.pagination.page_num = 1
+      this.pagination.currentPage = 1
       this.lockedModel = copyObj(this.form)
       this.handleTableData()
     },
     handleTableData() {
-      const {
-        user_name,
-        nick,
-        status,
-        plan_status,
-        is_yellow,
-        city,
-        createtime
-      } = this.lockedModel
-      const [start_create_time, end_create_time] = createtime || []
+      const { user_name, nick, status, plan_status, is_yellow, city } =
+        this.lockedModel
+
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
       const params = {
         user_name,
         nick,
@@ -281,9 +327,13 @@ export default {
         plan_status,
         is_yellow,
         city,
-        start_create_time,
-        end_create_time,
-        ...this.pagination
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize,
+        order_type: this.order_type,
+        order_by: this.order_by,
+        key: this.searchText
       }
       this.loading = true
       getUserList(params)
@@ -301,7 +351,17 @@ export default {
         })
     },
     handleExport() {
-      const [start_create_time, end_create_time] = this.form.createtime || []
+      if (this.form.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.form.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.form.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
       const params = {
         user_name: this.form.user_name,
         nick: this.form.nick,
@@ -309,12 +369,14 @@ export default {
         plan_status: this.form.plan_status,
         is_yellow: this.form.is_yellow,
         city: this.form.city,
-        start_create_time,
-        end_create_time
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time
       }
 
       exportUserList(0, params)
-        .then(() => {})
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
         .catch(err => {
           console.log(err)
         })
@@ -389,15 +451,16 @@ export default {
     },
     reset() {
       this.form = {}
+      this.searchText = ''
     },
     refreshTable() {
       this.reset()
-      this.pagination.page_num = 1
+      // this.pagination.currentPage = 1
       this.handleTableData()
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleTableData()
     },
     handleDelete(row) {
@@ -412,6 +475,29 @@ export default {
           })
         })
         .catch(err => console.log(err))
+    },
+    sortChange(column) {
+      if (column.order == 'ascending') {
+        this.order_type = 'asc'
+        this.order_by = column.prop
+      } else if (column.order == 'descending') {
+        this.order_type = 'desc'
+        this.order_by = column.prop
+      } else {
+        this.order_type = ''
+        this.order_by = ''
+      }
+      this.handleTableData()
+    },
+    handleSearch(val) {
+      this.searchText = val
+      this.handleTableData()
+    },
+    handleItem() {
+      this.isTable = !this.isTable
+    },
+    handleExpand() {
+      this.isExpand = !this.isExpand
     }
   }
 }

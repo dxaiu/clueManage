@@ -9,7 +9,7 @@
     @opened="opened"
   >
     <div class="page-container">
-      <div class="form-wrapper">
+      <div class="form-wrapper" v-show="isExpand">
         <d-form
           ref="info"
           :layout-span="layoutSpan"
@@ -20,13 +20,51 @@
           class="iform"
         />
         <div class="btn-wrapper">
-          <el-button type="primary" @click="searchTable">查询</el-button>
-          <el-button @click="reset">重置</el-button>
-          <el-button @click="handleExport">导出</el-button>
+          <el-button type="primary" size="small" @click="searchTable"
+            >查询</el-button
+          >
+          <el-button size="small" @click="reset">重置</el-button>
         </div>
       </div>
       <div class="table-dash">
+        <div class="search-header">
+          <div class="search-result-count">
+            <i class="el-icon-info" />
+            <span>当前搜索结果{{ totalCount || 0 }}条</span>
+          </div>
+          <div class="btn-group-block">
+            <div class="item-search">
+              <el-input
+                v-model="searchText"
+                size="small"
+                placeholder="搜索"
+                @input="handleSearch"
+              ></el-input>
+            </div>
+            <el-button
+              type="primary"
+              size="small"
+              icon="el-icon-tickets"
+              @click="handleItem"
+            ></el-button>
+            <el-button
+              type="primary"
+              size="small"
+              icon="el-icon-top-right"
+              @click="handleExport"
+            >
+            </el-button>
+            <el-button
+              type="primary"
+              size="small"
+              icon="el-icon-search"
+              @click="handleExpand"
+            >
+            </el-button>
+          </div>
+        </div>
         <d-table
+          v-if="isTable"
           ref="table"
           v-loading="loading"
           class="table-wrapper table-wrapper-scorll"
@@ -48,6 +86,7 @@ import { mapGetters } from 'vuex'
 import { getCuleInfoList, exportList } from '@/api/customer'
 import { copyObj } from '@/utils'
 import formatter from '@/utils/format'
+import FileSaver from 'file-saver'
 export default {
   name: 'ClueInfo',
   props: {
@@ -71,6 +110,7 @@ export default {
     return {
       layoutSpan: 24,
       breakpoint: [
+        [600, 1],
         [768, 2],
         [992, 3],
         [1200, 3],
@@ -153,6 +193,9 @@ export default {
         { label: '省份', prop: 'province' },
         { label: '城市', prop: 'city' },
         { label: '科室', prop: 'department' },
+        { label: '跟进信息', prop: 'last_follow_up_info.remark' },
+        { label: '跟进类型', prop: 'last_follow_up_info.follow_up_type' },
+        { label: '备注', prop: 'remark' },
         { label: '广告主名称', prop: 'advertiser_name' },
         { label: '广告计划名称', prop: 'advertiser_plan' },
         { label: '详情', prop: 'detail' },
@@ -160,10 +203,17 @@ export default {
         { label: '更新时间', prop: 'updated_time', formatter }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
-      uuid: ''
+      uuid: '',
+      start_create_time: '',
+      end_create_time: '',
+      start_update_time: '',
+      end_update_time: '',
+      searchText: '',
+      isTable: true,
+      isExpand: false
     }
   },
   methods: {
@@ -173,6 +223,9 @@ export default {
     close() {
       this.$refs.info.resetFields()
       this.$emit('update:visible', false)
+      this.searchText = ''
+      this.isTable = true
+      this.isExpand = false
     },
     opened() {
       this.uuid = this.form.id
@@ -187,7 +240,7 @@ export default {
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleDetail()
     },
     handleDetail(uuid) {
@@ -199,12 +252,30 @@ export default {
         city,
         department,
         advertiser_name,
-        advertiser_plan,
-        createtime,
-        updatetime
+        advertiser_plan
       } = this.lockedModel
-      const [start_create_time, end_create_time] = createtime || []
-      const [start_update_time, end_update_time] = updatetime || []
+      if (this.model.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.model.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.model.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
+      if (this.model.updatetime) {
+        this.start_update_time = parseInt(
+          new Date(this.model.updatetime[0]).getTime() / 1000
+        )
+        this.end_update_time = parseInt(
+          new Date(this.model.updatetime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_update_time = ''
+        this.end_update_time = ''
+      }
       const params = {
         name,
         phone,
@@ -214,12 +285,14 @@ export default {
         department,
         advertiser_name,
         advertiser_plan,
-        start_create_time,
-        end_create_time,
-        start_update_time,
-        end_update_time,
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        start_update_time: this.start_update_time,
+        end_update_time: this.end_update_time,
         user_id: uuid,
-        ...this.pagination
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize,
+        key: this.searchText
       }
       this.loading = true
       getCuleInfoList(params)
@@ -233,8 +306,28 @@ export default {
         })
     },
     handleExport() {
-      const [start_create_time, end_create_time] = this.model.createtime || []
-      const [start_update_time, end_update_time] = this.model.updatetime || []
+      if (this.model.createtime) {
+        this.start_create_time = parseInt(
+          new Date(this.model.createtime[0]).getTime() / 1000
+        )
+        this.end_create_time = parseInt(
+          new Date(this.model.createtime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_create_time = ''
+        this.end_create_time = ''
+      }
+      if (this.model.updatetime) {
+        this.start_update_time = parseInt(
+          new Date(this.model.updatetime[0]).getTime() / 1000
+        )
+        this.end_update_time = parseInt(
+          new Date(this.model.updatetime[1]).getTime() / 1000
+        )
+      } else {
+        this.start_update_time = ''
+        this.end_update_time = ''
+      }
       const params = {
         name: this.model.name,
         phone: this.model.phone,
@@ -244,17 +337,34 @@ export default {
         department: this.model.department,
         advertiser_name: this.model.advertiser_name,
         advertiser_plan: this.model.advertiser_plan,
-        start_create_time,
-        end_create_time,
-        start_update_time,
-        end_update_time
+        start_create_time: this.start_create_time,
+        end_create_time: this.end_create_time,
+        start_update_time: this.start_update_time,
+        end_update_time: this.end_update_time
       }
       exportList(0, params)
-        .then(() => {})
+        .then(res => {
+          FileSaver.saveAs(res.data.url)
+        })
         .catch(err => {
           console.log(err)
         })
+    },
+    handleSearch(val) {
+      this.searchText = val
+      this.handleDetail(this.uuid)
+    },
+    handleItem() {
+      this.isTable = !this.isTable
+    },
+    handleExpand() {
+      this.isExpand = !this.isExpand
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .el-dialog__body {
+  padding: 0 20px;
+}
+</style>

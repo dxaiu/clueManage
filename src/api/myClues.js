@@ -32,3 +32,11 @@ export function exportFollowList(clue_id) {
     url: `/v1/clues/${clue_id}/follow-up/export`
   })
 }
+
+// 导出列表
+export function exportClueList(clue_id, params) {
+  return request({
+    url: `/v1/clues/${clue_id}/export`,
+    params
+  })
+}
