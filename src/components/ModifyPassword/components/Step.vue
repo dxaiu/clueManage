@@ -8,8 +8,8 @@
       :label-width="0"
     />
     <div class="btn-con">
-      <el-button type="primary" @click="save">确认修改</el-button>
-      <el-button @click="cancel">取消</el-button>
+      <el-button type="primary" size="small" @click="save">确认修改</el-button>
+      <el-button size="small" @click="cancel">取消</el-button>
     </div>
   </div>
 </template>

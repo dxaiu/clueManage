@@ -24,7 +24,7 @@
             <el-switch
               v-model="item.plan_status"
               active-color="#13ce66"
-              inactive-color="#ff4949"
+              inactive-color="#dcdfe6"
               @change="handlePlaySwitch(item)"
             >
             </el-switch>
@@ -36,7 +36,7 @@
             <el-switch
               v-model="item.is_yellow"
               active-color="#13ce66"
-              inactive-color="#ff4949"
+              inactive-color="#dcdfe6"
               @change="handleYellowSwitch(item)"
             >
             </el-switch>

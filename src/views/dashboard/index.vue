@@ -1,6 +1,9 @@
 <template>
   <div class="page-show">
     <div class="page-title">概览</div>
+    <div class="page-title-tip" @click="handleRecord">
+      <i class="el-icon-bank-card"></i>查看充值记录
+    </div>
     <div class="box-content">
       <div class="box-item">
         <div class="box-item-right">
@@ -42,6 +45,8 @@
         <img :src="wechatImg" title="公众号二维码图片" style="width: 147px" />
       </div>
     </div>
+
+    <RecordList :visible.sync="recordVisible" />
   </div>
 </template>
 
@@ -49,9 +54,13 @@
 import wechatImg from '@/assets/wechat.png'
 import { getItem } from '@/utils/auth'
 import { mapGetters } from 'vuex'
+import RecordList from './components/RecordList'
 
 export default {
   name: 'Dashboard',
+  components: {
+    RecordList
+  },
   computed: {
     ...mapGetters(['username'])
   },
@@ -62,7 +71,8 @@ export default {
       surplus_total: 0,
       consume_total: 0,
       recharge_total: 0,
-      consume_today: 0
+      consume_today: 0,
+      recordVisible: false
     }
   },
   created() {
@@ -72,6 +82,11 @@ export default {
     this.consume_total = data.consume_total
     this.recharge_total = data.recharge_total
     this.consume_today = data.consume_today
+  },
+  methods: {
+    handleRecord() {
+      this.recordVisible = true
+    }
   }
 }
 </script>
@@ -86,6 +101,18 @@ export default {
     line-height: 70px;
     padding: 0 20px;
     font-size: 24px;
+  }
+  .page-title-tip {
+    font-size: 14px;
+    background-color: #3a8ee6;
+    color: #fff;
+    text-align: right;
+    width: 110px;
+    padding: 5px 5px;
+    position: absolute;
+    right: 30px;
+    top: 100px;
+    cursor: pointer;
   }
 
   .box-content {

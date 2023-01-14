@@ -76,6 +76,8 @@
         :total="totalCount"
         layout="total, sizes, prev, pager, next, jumper"
         small
+        :height="tableHeight"
+        :row-style="rowStyle"
         @pagination-change="handlePageChange"
         @sort-change="sortChange"
       >
@@ -94,7 +96,7 @@
               <el-switch
                 v-model="row.plan_status"
                 active-color="#13ce66"
-                inactive-color="#ff4949"
+                inactive-color="#dcdfe6"
                 @change="handlePlaySwitch(row, $event)"
               >
               </el-switch>
@@ -107,7 +109,7 @@
               <el-switch
                 v-model="row.is_yellow"
                 active-color="#13ce66"
-                inactive-color="#ff4949"
+                inactive-color="#dcdfe6"
                 @change="handleYellowSwitch(row, $event)"
               >
               </el-switch>
@@ -249,7 +251,7 @@ export default {
       tableData: [],
       totalCount: 0,
       columns: [
-        { label: '用户名', prop: 'user_name' },
+        { label: '用户名', prop: 'user_name', fixed: 'left' },
         { label: '昵称', prop: 'nick' },
         { label: '状态', slot: 'status' },
         { label: '计划状态', slot: 'plan_status' },
@@ -307,7 +309,8 @@ export default {
       order_by: '',
       searchText: '',
       isTable: true,
-      isExpand: false
+      isExpand: false,
+      tableHeight: 500
     }
   },
   computed: {
@@ -315,6 +318,24 @@ export default {
   },
   mounted() {
     this.handleTableData()
+
+    if (this.isMobile()) {
+      this.isTable = false
+    } else {
+      this.isTable = true
+      //固定表头
+      this.$nextTick(function () {
+        this.tableHeight =
+          window.innerHeight - this.$refs.table.$el.offsetTop - 50
+
+        // 监听窗口大小变化
+        let self = this
+        window.onresize = function () {
+          self.tableHeight =
+            window.innerHeight - self.$refs.table.$el.offsetTop - 50
+        }
+      })
+    }
   },
   methods: {
     searchTable() {
@@ -519,6 +540,20 @@ export default {
     },
     handleExpand() {
       this.isExpand = !this.isExpand
+    },
+    rowStyle({ row }) {
+      if (row.is_yellow == true) {
+        return { background: '#ffffc7' }
+      }
+      if (row.is_yellow == false && row.surplus_total == 0) {
+        return { background: '#ef4a4a' }
+      }
+    },
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      )
+      return flag
     }
   }
 }

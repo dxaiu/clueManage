@@ -240,10 +240,17 @@ export default {
       this.searchText = ''
       this.isTable = true
       this.isExpand = false
+      this.tableData = []
+      this.totalCount = 0
     },
     opened() {
       this.uuid = this.form.id
       this.handleDetail(this.uuid)
+      if (this.isMobile()) {
+        this.isTable = false
+      } else {
+        this.isTable = true
+      }
     },
     searchTable() {
       this.lockedModel = copyObj(this.model)
@@ -374,6 +381,12 @@ export default {
     },
     handleExpand() {
       this.isExpand = !this.isExpand
+    },
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      )
+      return flag
     }
   }
 }

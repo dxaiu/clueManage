@@ -71,6 +71,7 @@
         :total="totalCount"
         layout="total, sizes, prev, pager, next, jumper"
         small
+        :cell-style="cellStyle"
         @pagination-change="handlePageChange"
         @selection-change="handleSelection"
       />
@@ -261,6 +262,11 @@ export default {
   },
   mounted() {
     this.handleTableData()
+    if (this.isMobile()) {
+      this.isTable = false
+    } else {
+      this.isTable = true
+    }
   },
   methods: {
     searchTable() {
@@ -393,9 +399,21 @@ export default {
     },
     handleItem() {
       this.isTable = !this.isTable
+      this.selectedList = []
     },
     handleExpand() {
       this.isExpand = !this.isExpand
+    },
+    cellStyle({ columnIndex }) {
+      if (columnIndex == 2) {
+        return { color: '#ef4a4a' }
+      }
+    },
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      )
+      return flag
     }
   }
 }

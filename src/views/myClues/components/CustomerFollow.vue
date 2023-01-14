@@ -147,8 +147,8 @@ export default {
           value: 'remark',
           placeholder: '跟进内容支持中文、英文大小写、数字、全部特殊字符。',
           maxlength: 1000,
-          showWordLimit: true,
-          autosize: { minRows: 3, maxRows: 5 },
+          showWordLimit: false,
+          autosize: { minRows: 3, maxRows: 6 },
           clearable: true
         }
       ],

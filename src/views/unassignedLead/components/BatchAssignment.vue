@@ -61,9 +61,9 @@ export default {
           label: '备注',
           value: 'remark',
           placeholder: '',
-          maxlength: 50,
+          maxlength: 200,
           showWordLimit: true,
-          autosize: { minRows: 2, maxRows: 4 },
+          autosize: { minRows: 3, maxRows: 6 },
           clearable: true
         }
       ],
@@ -74,7 +74,7 @@ export default {
         ],
         remark: [
           { required: false, message: '请输入备注', trigger: 'blur' },
-          { max: 50, message: '备注不超过50个字符', trigger: 'blur' }
+          { max: 200, message: '备注不超过200个字符', trigger: 'blur' }
         ]
       },
       pagination: {
@@ -84,18 +84,6 @@ export default {
       uuid: ''
     }
   },
-  mounted() {
-    // 去除下拉框的readonly属性
-    Array.from(document.getElementsByClassName('el-select')).forEach(item => {
-      item.children[0].children[0].removeAttribute('readOnly')
-      item.children[0].children[0].onblur = function () {
-        let _this = this
-        setTimeout(() => {
-          _this.removeAttribute('readOnly')
-        }, 200)
-      }
-    })
-  },
   methods: {
     refreshTable() {
       this.$emit('refreshTable')
@@ -103,6 +91,16 @@ export default {
     opened() {
       this.uuid = this.form.id
       // this.getUserList()
+      // 去除下拉框的readonly属性
+      Array.from(document.getElementsByClassName('el-select')).forEach(item => {
+        item.children[0].children[0].removeAttribute('readOnly')
+        item.children[0].children[0].onblur = function () {
+          let _this = this
+          setTimeout(() => {
+            _this.removeAttribute('readOnly')
+          }, 200)
+        }
+      })
     },
     close() {
       this.$refs.form.resetFields()
@@ -134,7 +132,7 @@ export default {
       this.items[0].options = []
       const params = {
         ...this.pagination,
-        user_name: val
+        nick: val
       }
       getUserList(params)
         .then(res => {

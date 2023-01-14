@@ -15,7 +15,7 @@
           </el-row>
           <el-row type="flex" class="item-row" justify="space-between">
             <el-col class="row-name" :span="8">备注</el-col>
-            <el-col class="tip" :span="16">{{ item.remark }}</el-col>
+            <el-col class="tip word" :span="16">{{ item.remark }}</el-col>
           </el-row>
           <el-row type="flex" class="item-row" justify="space-between">
             <el-col class="row-name" :span="8">名称</el-col>
@@ -178,6 +178,9 @@ export default {
       .tip {
         font-size: 12px;
         color: #333;
+      }
+      .word {
+        color: #ef4a4a;
       }
       .btn {
         margin-top: -1px;

@@ -212,6 +212,11 @@ export default {
   },
   mounted() {
     this.handleTableData()
+    if (this.isMobile()) {
+      this.isTable = false
+    } else {
+      this.isTable = true
+    }
   },
   methods: {
     searchTable() {
@@ -345,6 +350,12 @@ export default {
     },
     handleExpand() {
       this.isExpand = !this.isExpand
+    },
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      )
+      return flag
     }
   }
 }

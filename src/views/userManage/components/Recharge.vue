@@ -123,10 +123,10 @@ export default {
           label: '备注',
           value: 'remark',
           placeholder:
-            '支持中文、英文大小写、数字、全部特殊字符，不超过50字符。',
-          maxlength: 50,
+            '支持中文、英文大小写、数字、全部特殊字符，不超过200字符。',
+          maxlength: 200,
           showWordLimit: true,
-          autosize: { minRows: 2, maxRows: 4 },
+          autosize: { minRows: 3, maxRows: 6 },
           clearable: true
         }
       ],
