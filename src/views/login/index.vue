@@ -59,7 +59,7 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-import { setItem } from '@/utils/auth'
+import { setItem, getItem } from '@/utils/auth'
 export default {
   name: 'Login',
   data() {
@@ -78,7 +78,8 @@ export default {
         ]
       },
       loading: false,
-      redirect: undefined
+      redirect: undefined,
+      userId: ''
     }
   },
   watch: {
@@ -112,7 +113,9 @@ export default {
             .dispatch('user/login', this.loginForm)
             .then(() => {
               if (this.loginForm.code) {
-                this.$router.push({ path: '/loginOut' })
+                // this.$router.push({ path: '/loginOut' })
+                this.userId = parseInt(getItem('userid'))
+                window.location.href = `https://bdxs.beiysj.com/information-flow/v1/home/${this.userId}?openid=${this.loginForm.code}`
               } else {
                 this.$router.push({ path: this.redirect || '/' })
                 this.loading = false

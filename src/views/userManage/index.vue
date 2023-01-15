@@ -81,7 +81,7 @@
         @pagination-change="handlePageChange"
         @sort-change="sortChange"
       >
-        <el-table-column label="状态" slot="status">
+        <el-table-column label="状态" slot="status" fixed>
           <template #default="{ row }">
             <span>
               <el-tag :type="row.status == true ? '' : 'danger'">{{
@@ -90,7 +90,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="计划状态" slot="plan_status">
+        <el-table-column label="计划状态" slot="plan_status" fixed>
           <template #default="{ row }">
             <span>
               <el-switch
@@ -103,7 +103,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="变黄" slot="is_yellow">
+        <el-table-column label="变黄" slot="is_yellow" fixed>
           <template #default="{ row }">
             <span>
               <el-switch
@@ -252,7 +252,7 @@ export default {
       totalCount: 0,
       columns: [
         { label: '用户名', prop: 'user_name', fixed: 'left' },
-        { label: '昵称', prop: 'nick' },
+        { label: '昵称', prop: 'nick', fixed: 'left' },
         { label: '状态', slot: 'status' },
         { label: '计划状态', slot: 'plan_status' },
         { label: '变黄', slot: 'is_yellow' },

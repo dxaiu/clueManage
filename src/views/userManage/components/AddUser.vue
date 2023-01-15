@@ -100,7 +100,7 @@ export default {
           options: [
             { label: '男科', value: '男科' },
             { label: '妇科', value: '妇科' },
-            { label: '肠胃', value: '肠胃' },
+            { label: '胃肠', value: '胃肠' },
             { label: '肛肠', value: '肛肠' },
             { label: '性病', value: '性病' },
             { label: '不孕不育', value: '不孕不育' },

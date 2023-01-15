@@ -164,11 +164,18 @@ export default {
     close() {
       this.$refs.form.resetFields()
       this.$emit('update:visible', false)
+      this.tableData = []
+      this.totalCount = 0
     },
     opened() {
       this.currentForm.nickname = this.form.nick
       this.uuid = this.form.id
       this.handleDetail(this.uuid)
+      if (this.isMobile()) {
+        this.isTable = false
+      } else {
+        this.isTable = true
+      }
     },
     save() {
       this.$refs.form.validate(valid => {
@@ -223,7 +230,21 @@ export default {
     },
     handleItem() {
       this.isTable = !this.isTable
+    },
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      )
+      return flag
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+.box-item {
+  width: 100%;
+  height: 300px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+</style>
