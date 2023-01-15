@@ -1,7 +1,13 @@
 <template>
   <div>
     <div class="content" v-for="item in data" :key="item.id">
-      <div class="item-box">
+      <div
+        class="item-box"
+        :class="{
+          'active-yellow': item.is_yellow == true,
+          'active-red': item.is_yellow == false && item.surplus_total == 0
+        }"
+      >
         <el-row type="flex" class="item-row" justify="space-between">
           <el-col class="row-name" :span="8">用户名</el-col>
           <el-col class="tip" :span="16">{{ item.user_name }}</el-col>
@@ -188,6 +194,12 @@ export default {
         margin-top: -1px;
       }
     }
+  }
+  .active-yellow {
+    background: #ffffc7;
+  }
+  .active-red {
+    background: #ef4a4a;
   }
 }
 </style>

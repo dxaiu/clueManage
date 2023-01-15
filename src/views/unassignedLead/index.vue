@@ -216,7 +216,7 @@ export default {
       columns: [
         { type: 'selection' },
         { label: 'ID', prop: 'id' },
-        { label: '备注', prop: 'remark' },
+        { label: '备注', prop: 'remark', width: '320' },
         { label: '名称', prop: 'name' },
         { label: '电话', prop: 'phone' },
         { label: '线索来源', prop: 'source_type' },
@@ -231,7 +231,7 @@ export default {
         {
           label: '操作',
           width: '100',
-          fixed: 'right',
+          // fixed: 'right',
           buttons: [
             {
               type: 'text',

@@ -2,7 +2,7 @@
   <d-dialog
     title="线索信息"
     :visible="visible"
-    width="90%"
+    width="95%"
     vertical-center
     :close-on-click-modal="false"
     @close="close"
@@ -74,6 +74,7 @@
           :total="totalCount"
           layout="total, sizes, prev, pager, next, jumper"
           small
+          :cell-style="cellStyle"
           @pagination-change="handlePageChange"
         />
 
@@ -207,14 +208,14 @@ export default {
         { label: '省份', prop: 'province' },
         { label: '城市', prop: 'city' },
         { label: '科室', prop: 'department' },
-        { label: '跟进信息', prop: 'last_follow_up_info.remark' },
-        { label: '跟进类型', prop: 'last_follow_up_info.follow_up_type' },
-        { label: '备注', prop: 'remark' },
         { label: '广告主名称', prop: 'advertiser_name' },
         { label: '广告计划名称', prop: 'advertiser_plan' },
         { label: '详情', prop: 'detail' },
+        { label: '跟进类型', prop: 'last_follow_up_info.follow_up_type' },
+        { label: '跟进信息', prop: 'last_follow_up_info.remark' },
         { label: '创建时间', prop: 'created_time', formatter },
-        { label: '更新时间', prop: 'updated_time', formatter }
+        { label: '更新时间', prop: 'updated_time', formatter },
+        { label: '备注', prop: 'remark' }
       ],
       pagination: {
         currentPage: 1,
@@ -381,6 +382,11 @@ export default {
     },
     handleExpand() {
       this.isExpand = !this.isExpand
+    },
+    cellStyle({ columnIndex }) {
+      if (columnIndex == 13) {
+        return { color: '#ef4a4a' }
+      }
     },
     isMobile() {
       let flag = navigator.userAgent.match(

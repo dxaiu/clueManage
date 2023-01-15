@@ -27,22 +27,6 @@
           <el-col class="tip" :span="16">{{ item.department }}</el-col>
         </el-row>
         <el-row type="flex" class="item-row" justify="space-between">
-          <el-col class="row-name" :span="8">跟进信息</el-col>
-          <el-col class="tip" :span="16">{{
-            item.last_follow_up_info.remark
-          }}</el-col>
-        </el-row>
-        <el-row type="flex" class="item-row" justify="space-between">
-          <el-col class="row-name" :span="8">跟进类型</el-col>
-          <el-col class="tip" :span="16">{{
-            item.last_follow_up_info.follow_up_type
-          }}</el-col>
-        </el-row>
-        <el-row type="flex" class="item-row" justify="space-between">
-          <el-col class="row-name" :span="8">备注</el-col>
-          <el-col class="tip" :span="16">{{ item.remark }}</el-col>
-        </el-row>
-        <el-row type="flex" class="item-row" justify="space-between">
           <el-col class="row-name" :span="8">广告主名称</el-col>
           <el-col class="tip" :span="16">{{ item.advertiser_name }}</el-col>
         </el-row>
@@ -55,6 +39,18 @@
           <el-col class="tip" :span="16">{{ item.detail }}</el-col>
         </el-row>
         <el-row type="flex" class="item-row" justify="space-between">
+          <el-col class="row-name" :span="8">跟进类型</el-col>
+          <el-col class="tip" :span="16">{{
+            item.last_follow_up_info.follow_up_type
+          }}</el-col>
+        </el-row>
+        <el-row type="flex" class="item-row" justify="space-between">
+          <el-col class="row-name" :span="8">跟进信息</el-col>
+          <el-col class="tip" :span="16">{{
+            item.last_follow_up_info.remark
+          }}</el-col>
+        </el-row>
+        <el-row type="flex" class="item-row" justify="space-between">
           <el-col class="row-name" :span="8">创建时间</el-col>
           <el-col class="tip" :span="16">{{
             formatter('created_time', item.created_time)
@@ -65,6 +61,10 @@
           <el-col class="tip" :span="16">{{
             formatter('updated_time', item.updated_time)
           }}</el-col>
+        </el-row>
+        <el-row type="flex" class="item-row" justify="space-between">
+          <el-col class="row-name" :span="8">备注</el-col>
+          <el-col class="tip word" :span="16">{{ item.remark }}</el-col>
         </el-row>
       </div>
     </div>
@@ -160,6 +160,9 @@ export default {
       .tip {
         font-size: 12px;
         color: #333;
+      }
+      .word {
+        color: #ef4a4a;
       }
       .btn {
         margin-top: -1px;

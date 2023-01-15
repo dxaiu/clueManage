@@ -14,3 +14,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function logoutCode(id, params) {
+  return request({
+    url: `/v1/home/${id}/logout`,
+    method: 'get',
+    params
+  })
+}

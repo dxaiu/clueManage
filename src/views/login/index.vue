@@ -59,7 +59,7 @@
 
 <script>
 // import { validUsername } from '@/utils/validate'
-
+import { setItem } from '@/utils/auth'
 export default {
   name: 'Login',
   data() {
@@ -101,6 +101,7 @@ export default {
     }
 
     this.loginForm.code = cs1.code || ''
+    setItem('code', this.loginForm.code)
   },
   methods: {
     handleLogin() {
@@ -110,8 +111,12 @@ export default {
           this.$store
             .dispatch('user/login', this.loginForm)
             .then(() => {
-              this.$router.push({ path: this.redirect || '/' })
-              this.loading = false
+              if (this.loginForm.code) {
+                this.$router.push({ path: '/loginOut' })
+              } else {
+                this.$router.push({ path: this.redirect || '/' })
+                this.loading = false
+              }
             })
             .catch(() => {
               this.loading = false
