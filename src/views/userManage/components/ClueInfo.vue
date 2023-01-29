@@ -375,6 +375,7 @@ export default {
     },
     handleSearch(val) {
       this.searchText = val
+      this.pagination.currentPage = 1
       this.handleDetail(this.uuid)
     },
     handleItem() {

@@ -343,6 +343,7 @@ export default {
     },
     handleSearch(val) {
       this.searchText = val
+      this.pagination.currentPage = 1
       this.handleTableData()
     },
     handleItem() {

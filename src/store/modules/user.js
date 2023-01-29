@@ -42,6 +42,7 @@ const actions = {
   // user login
   login({ commit }, userInfo) {
     const { username, password, code } = userInfo
+    removeToken()
     return new Promise((resolve, reject) => {
       login({ user_name: username.trim(), password: password, code: code })
         .then(response => {
@@ -104,6 +105,7 @@ const actions = {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
       removeAll()
+      resetRouter()
       commit('RESET_STATE')
       resolve()
     })

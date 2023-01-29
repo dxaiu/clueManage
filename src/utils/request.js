@@ -39,19 +39,19 @@ service.interceptors.response.use(
   error => {
     const res = error.response
     let errorMessage = res.data.error
-    if (res.status === 404) {
-      errorMessage = '访问接口不存在!'
-    }
     if (res.status === 401) {
-      errorMessage === '登录已过期!'
+      errorMessage = '登录已过期!'
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })
     }
+    if (res.status === 404) {
+      errorMessage = '访问接口不存在!'
+    }
     if (res.status === 500) {
       errorMessage = '服务器内部错误!'
     }
-    console.log('err' + error)
+
     Message({
       message: errorMessage,
       type: 'error',

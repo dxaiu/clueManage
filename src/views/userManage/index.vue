@@ -493,7 +493,7 @@ export default {
     },
     reset() {
       this.form = {}
-      this.searchText = ''
+      // this.searchText = ''
     },
     refreshTable() {
       this.reset()
@@ -533,6 +533,7 @@ export default {
     },
     handleSearch(val) {
       this.searchText = val
+      this.pagination.currentPage = 1
       this.handleTableData()
     },
     handleItem() {
