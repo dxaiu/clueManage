@@ -55,7 +55,7 @@ import wechatImg from '@/assets/wechat.png'
 import { getItem } from '@/utils/auth'
 import { mapGetters } from 'vuex'
 import RecordList from './components/RecordList'
-
+import { getCount } from '@/api/customer'
 export default {
   name: 'Dashboard',
   components: {
@@ -77,13 +77,20 @@ export default {
   },
   created() {
     const { data } = JSON.parse(getItem('info'))
-    this.flag = data.enable_wechat == true ? true : false
-    this.surplus_total = data.surplus_total
-    this.consume_total = data.consume_total
-    this.recharge_total = data.recharge_total
-    this.consume_today = data.consume_today
+    this.handleCount(data.id)
   },
   methods: {
+    handleCount(uuid) {
+      getCount(uuid)
+        .then(res => {
+          this.flag = res.data.enable_wechat == true ? true : false
+          this.surplus_total = res.data.surplus_total
+          this.consume_total = res.data.consume_total
+          this.recharge_total = res.data.recharge_total
+          this.consume_today = res.data.consume_today
+        })
+        .catch(() => {})
+    },
     handleRecord() {
       this.recordVisible = true
     }

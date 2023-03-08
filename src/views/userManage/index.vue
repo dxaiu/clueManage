@@ -195,7 +195,7 @@ export default {
         {
           type: 'text',
           value: 'user_name',
-          label: '用户名',
+          label: '科室',
           clearable: true
         },
         {

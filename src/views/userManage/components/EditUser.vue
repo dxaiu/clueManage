@@ -125,7 +125,12 @@ export default {
             { label: '眼科', value: '眼科' },
             { label: '吸脂', value: '吸脂' },
             { label: '产检', value: '产检' },
-            { label: '早孕', value: '早孕' }
+            { label: '早孕', value: '早孕' },
+            { label: '牛皮癣', value: '牛皮癣' },
+            { label: '白癜风', value: '白癜风' },
+            { label: '心理咨询', value: '心理咨询' },
+            { label: '皮肤检测', value: '皮肤检测' },
+            { label: 'HPV', value: 'HPV' }
           ]
         },
         {

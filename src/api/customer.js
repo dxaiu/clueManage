@@ -83,3 +83,9 @@ export function exportList(clue_id, params) {
     params
   })
 }
+// 获取统计
+export function getCount(user_id) {
+  return request({
+    url: `/v1/users/${user_id}`
+  })
+}

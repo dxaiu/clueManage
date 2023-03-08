@@ -169,8 +169,8 @@ export default {
         { label: '备注', prop: 'remark' }
       ],
       pagination: {
-        page_num: 1,
-        page_size: 10
+        currentPage: 1,
+        pageSize: 10
       },
       uuid: '',
       isTable: true
@@ -209,12 +209,13 @@ export default {
     },
     handlePageChange({ type, val }) {
       this.pagination[type] = val
-      type === 'pageSize' && (this.pagination.page_num = 1)
+      type === 'pageSize' && (this.pagination.currentPage = 1)
       this.handleDetail(this.uuid)
     },
     handleDetail(uuid) {
       const params = {
-        ...this.pagination
+        page_num: this.pagination.currentPage,
+        page_size: this.pagination.pageSize
       }
       this.loading = true
       getFollowList(uuid, params)
