@@ -256,6 +256,7 @@ export default {
         { label: '状态', slot: 'status' },
         { label: '计划状态', slot: 'plan_status' },
         { label: '变黄', slot: 'is_yellow' },
+        { label: '投放渠道', prop: 'source_type' },
         { label: '备注', prop: 'remark', width: '320' },
         { label: '总条数', prop: 'recharge_total', sortable: 'custom' },
         { label: '共消耗', prop: 'consume_total', sortable: 'custom' },
