@@ -117,7 +117,13 @@ export default {
             { label: '白癜风', value: '白癜风' },
             { label: '心理咨询', value: '心理咨询' },
             { label: '皮肤检测', value: '皮肤检测' },
-            { label: 'HPV', value: 'HPV' }
+            { label: 'HPV', value: 'HPV' },
+            { label: '腋臭', value: '腋臭' },
+            { label: '疤痕', value: '疤痕' },
+            { label: '胎记', value: '胎记' },
+            { label: '儿科', value: '儿科' },
+            { label: '甲状腺', value: '甲状腺' },
+            { label: '妊娠纹', value: '妊娠纹' }
           ]
         },
         {
@@ -156,12 +162,29 @@ export default {
               label: '禁用'
             }
           ]
+        },
+        {
+          type: 'radio',
+          value: 'source_type',
+          label: '投放渠道',
+          options: [
+            {
+              label: '快手'
+            },
+            {
+              label: '腾讯'
+            },
+            {
+              label: '抖音'
+            }
+          ]
         }
       ],
       currentForm: {
         user_type: 'customer',
         status: '启用',
-        enable_wechat: '启用'
+        enable_wechat: '启用',
+        source_type: '快手'
       },
       rules: {
         user_type: [
@@ -194,6 +217,9 @@ export default {
         status: [{ required: true, message: '请选择状态', trigger: 'change' }],
         enable_wechat: [
           { required: true, message: '请选择状态', trigger: 'change' }
+        ],
+        source_type: [
+          { required: true, message: '请选择投放渠道', trigger: 'change' }
         ]
       },
       uuid: ''
@@ -211,12 +237,19 @@ export default {
       this.currentForm = {
         user_type: 'customer',
         status: '启用',
-        enable_wechat: '启用'
+        enable_wechat: '启用',
+        source_type: '快手'
       }
     },
     save() {
       this.$refs.form.validate(valid => {
         if (!valid) return
+        const statusMap = {
+          快手: '快手',
+          腾讯: '腾讯',
+          抖音: '抖音',
+          default: '快手'
+        }
         const params = {
           user_type: this.currentForm.user_type,
           user_name: this.currentForm.user_name,
@@ -229,7 +262,9 @@ export default {
           remark: this.currentForm.remark,
           status: this.currentForm.status === '启用' ? true : false,
           enable_wechat:
-            this.currentForm.enable_wechat === '启用' ? true : false
+            this.currentForm.enable_wechat === '启用' ? true : false,
+          source_type:
+            statusMap[this.currentForm.source_type] || statusMap.default
         }
         addUser(params).then(() => {
           this.$message({

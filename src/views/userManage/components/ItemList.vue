@@ -49,6 +49,10 @@
           </el-col>
         </el-row>
         <el-row type="flex" class="item-row" justify="space-between">
+          <el-col class="row-name" :span="8">投放渠道</el-col>
+          <el-col class="tip" :span="16">{{ item.source_type }}</el-col>
+        </el-row>
+        <el-row type="flex" class="item-row" justify="space-between">
           <el-col class="row-name" :span="8">备注</el-col>
           <el-col class="tip" :span="16">{{ item.remark }}</el-col>
         </el-row>
